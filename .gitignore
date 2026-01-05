@@ -1,0 +1,12 @@
+# virtual environments
+venv/
+.venv/
+# python bytecode
+__pycache__/
+*.pyc
+# pytest
+.pytest_cache/
+# database files
+*.db
+# MacOS
+.DS_Store

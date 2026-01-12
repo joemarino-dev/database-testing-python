@@ -29,28 +29,36 @@ cursor.execute('''
                   amount REAL NOT NULL,
                   transaction_type TEXT NOT NULL,
                   status TEXT NOT NULL,
-                  FOREIGN KEY (user_id) REFERENCES users(id)
+                  from_account_id INTEGER,
+                  to_account_id INTEGER,
+                  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  FOREIGN KEY (user_id) REFERENCES users(id),
+                  FOREIGN KEY (from_account_id) REFERENCES users(id),
+                  FOREIGN KEY (to_account_id) REFERENCES users(id)
               )
               ''')
 
 # Insert test data
 users_data = [
-    (1, 'John Smith', 'john.smith@example.com', 50000.00),
-    (2, 'Jane Doe', 'jane.doe@example.com', 75000.00),
-    (3, 'Bob Johnson', 'bob.johnson@example.com', 100000.00)
+    (1, 'John Smith', 'john.smith@example.com', 1000.00),
+    (2, 'Jane Doe', 'jane.doe@example.com', 500.00),
+    (3, 'Bob Johnson', 'bob.johnson@example.com', 2000.00)
 ]
 
 cursor.executemany('INSERT INTO users VALUES (?, ?, ?, ?)', users_data)
 
 transactions_data = [
-    (1, 1, 1000.00, 'deposit', 'completed'),
-    (2, 1, 500.00, 'withdrawal', 'completed'),
-    (3, 2, 2000.00, 'deposit', 'completed'),
-    (4, 2, 1500.00, 'deposit', 'pending'),
-    (5, 3, 5000.00, 'withdrawal', 'completed')
+    (1, 1, 500.00, 'deposit', 'completed', None, None),
+    (2, 1, 200.00, 'withdrawal', 'completed', None, None),
+    (3, 2, 500.00, 'deposit', 'completed', None, None),
+    (4, 2, 1500.00, 'deposit', 'pending', None, None),
+    (5, 3, 2000.00, 'deposit', 'completed', None, None)
 ]
 
-cursor.executemany('INSERT INTO transactions VALUES (?, ?, ?, ?, ?)', transactions_data)
+cursor.executemany('''
+    INSERT INTO transactions (id, user_id, amount, transaction_type, status, from_account_id, to_account_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+''', transactions_data)
 
 # Commit and close
 conn.commit()
@@ -60,3 +68,8 @@ print(f"Test database created successfully at: {db_path}")
 print("Tables created: users, transactions")
 print(f"Users inserted: {len(users_data)}")
 print(f"Transactions inserted: {len(transactions_data)}")
+print("\nInitial account balances:")
+print("  John Smith: $1000.00")
+print("  Jane Doe: $500.00")
+print("  Bob Johnson: $2000.00")
+print("  TOTAL SYSTEM: $3500.00")
